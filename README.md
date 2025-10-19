@@ -1,2 +1,2 @@
 # game-store-website
-A full-stack e-commerce website for browsing and purchasing games, built with HTML, CSS, JavaScript, Node.js, and SQL Server. Features product listings, search &amp; filters, shopping cart, and checkout flow.
+This project was completed as a 4th semester group project with Mursaleen. It demonstrates a full-stack workflow with frontend interactivity, backend server-side logic using Node.js (Express), and SQL database integration. The website is responsive, interactive, and showcases real-world e-commerce features.
