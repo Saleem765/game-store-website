@@ -1,0 +1,184 @@
+/* Import Google Font for headings */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+/* General body styling */
+body {
+    background: linear-gradient(to bottom, #1e3c72, #2a5298); /* Gradient background */
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+/* Headings */
+h1, h2, h3 {
+    margin: 0;
+    padding: 10px 0;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+h1 {
+    font-size: 2.5rem;
+    color: #ffeb3b;
+}
+h2 {
+    font-size: 2rem;
+    color: #ffffff;
+}
+h3 {
+    font-size: 1.5rem;
+    color: #90caf9;
+}
+
+/* Main container */
+.container {
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+/* Navigation bar */
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+nav a {
+    text-decoration: none;
+    color: #ffffff; /* Ensure button text is white */
+    background-color: #2196f3; /* Button background is blue */
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+nav a:hover {
+    background-color: #1976d2; /* Darker blue on hover */
+    transform: scale(1.1);
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+label {
+    font-size: 1rem;
+    color: #ffeb3b;
+}
+input, select {
+    width: 90%;
+    max-width: 400px;
+    padding: 10px;
+    border: 2px solid #ffeb3b;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: #333333;
+}
+input::placeholder {
+    color: #aaaaaa;
+}
+
+/* Buttons */
+button {
+    background-color: #2196f3 !important; /* Ensure the background is blue */
+    color: #ffffff !important; /* Force the text color to be white */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+    background-color: #1976d2 !important; /* Ensure hover background is darker blue */
+    transform: scale(1.1);
+}
+button:active {
+    transform: scale(0.95);
+}
+
+/* Add spacing between buttons in the admin actions section */
+#admin-actions button {
+    margin: 10px 5px; /* Add space around each button */
+    padding: 10px 20px; /* Ensure buttons have consistent padding */
+    font-size: 1rem; /* Adjust font size for better readability */
+    cursor: pointer; /* Add pointer cursor for better UX */
+}
+
+/* Footer */
+footer {
+    background-color: #111111;
+    color: #ffffff;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Games list container */
+#games-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Individual game item */
+.game-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Game image */
+.game-image {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* Game details */
+.game-details h4 {
+  font-size: 1.2em;
+  margin: 10px 0 5px;
+  color: black; /* Changed color to black */
+}
+
+.game-details p {
+  margin: 5px 0;
+  font-size: 1em;
+  color: #555;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    input, select {
+        width: 100%;
+    }
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

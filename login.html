@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Link to external CSS file for styling -->
+  <link rel="stylesheet" href="db_css.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Game Store</title>
+</head>
+<body>
+  <header>
+    <!-- Header section with title and navigation links -->
+    <h1 style="text-align: center; color: #4caf50;">Game Store</h1>
+    <nav>
+      <!-- Navigation links to Home and Register pages -->
+      <a href="home.html">Home</a>
+      <a href="register.html">Register</a>
+    </nav>
+  </header>
+  <main class="container">
+    <!-- Login form section -->
+    <h2>Login</h2>
+    <form id="login-form">
+      <!-- Dropdown to select user role -->
+      <label for="role">Login as:</label><br>
+      <select id="role" name="role" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="admin">Admin</option>
+        <option value="customer">Customer</option>
+      </select><br>
+
+      <!-- Input field for email -->
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email" required><br>
+
+      <!-- Input field for password -->
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password" required><br><br>
+
+      <!-- Submit button for login -->
+      <button type="submit">Login</button>
+    </form>
+  </main>
+
+  <script>
+    // Add event listener to handle form submission
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault(); // Prevent default form submission behavior
+
+      // Get form values
+      const role = document.getElementById('role').value;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Validate form inputs
+      if (!role || !email || !password) {
+        return alert('Please select a role and enter both email and password.');
+      }
+
+      // Send login request to the backend
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role, email, password }) // Ensure role is sent
+      });
+
+      // Parse the response from the backend
+      const result = await res.json();
+
+      if (result.success) {
+        // Store the logged-in user's email in localStorage
+        localStorage.setItem('loggedInUser', email);
+
+        // Redirect based on the selected role
+        if (role === 'admin') {
+          window.location.href = 'admin.html'; // Redirect to admin page
+        } else if (role === 'customer') {
+          window.location.href = 'cart.html'; // Redirect to cart page
+        }
+      } else {
+        // Show error message from the backend
+        alert(result.message);
+      }
+    });
+  </script>
+</body>
+</html>

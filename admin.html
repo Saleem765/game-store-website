@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+<head>
+  <!-- Link to external CSS file -->
+  <link rel="stylesheet" href="db_css.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Game Store</title>
+</head>
+<body>
+  <header>
+    <h1>Admin Panel - Game Store</h1>
+    <nav>
+      <!-- Navigation links -->
+      <a href="home.html">Home</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+  <main class="container">
+    <!-- Admin action buttons -->
+    <div id="admin-actions">
+      <button id="add-game-btn">Add New Game</button>
+      <button id="show-games-btn">Show Existing Games</button>
+      <button id="show-orders-btn">Show Order Details</button>
+      <button id="delete-game-btn">Delete Game</button>
+      <button id="show-users-btn">Show All Users</button>
+      <button id="delete-user-btn">Delete User</button>
+      <!-- Add Modify Game Button in Admin Actions -->
+      <button id="modify-game-btn">Modify Game</button>
+    </div>
+    <div id="user-list" style="margin-top: 20px;"></div>
+
+    <!-- Add New Game Form -->
+    <section id="add-game-section" style="display: none;">
+      <h2>Add New Game</h2>
+      <form id="add-game-form" enctype="multipart/form-data">
+        <!-- Input fields for adding a new game -->
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" placeholder="Enter game title" required>
+        
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" placeholder="Enter game description" rows="4" required></textarea>
+        
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" placeholder="Enter game price" step="0.01" required>
+        
+        <label for="genre">Genre:</label>
+        <input type="text" id="genre" name="genre" placeholder="Enter game genre" required>
+        
+        <label for="platform">Platform:</label>
+        <input type="text" id="platform" name="platform" placeholder="Enter game platform" required>
+
+        <!-- New file input for uploading an image -->
+        <label for="image">Game Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required>
+        
+        <button type="submit">Add Game</button>
+      </form>
+    </section>
+
+    <!-- Existing Games Table -->
+    <section id="games-section" style="display: none;">
+      <h2>Existing Games</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Genre</th>
+            <th>Platform</th>
+          </tr>
+        </thead>
+        <tbody id="games-list">
+          <!-- Existing games will be dynamically loaded here -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Order Details Table -->
+    <section id="orders-section" style="display: none;">
+      <h2>Order Details</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Order Item ID</th>
+            <th>Order ID</th>
+            <th>Game Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="orders-list">
+          <!-- Order details will be dynamically loaded here -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Delete Game Section -->
+    <section id="delete-game-section" style="display: none;">
+      <h2>Delete Game</h2>
+      <form id="delete-game-form">
+        <!-- Input field for deleting a game -->
+        <label for="delete-game-id">Game ID:</label>
+        <input type="text" id="delete-game-id" name="delete-game-id" placeholder="Enter game ID to delete" required>
+        <button type="submit">Delete Game</button>
+      </form>
+    </section>
+
+    <!-- Show All Users Table -->
+    <section id="users-section" style="display: none;">
+      <h2>All Users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody id="users-list">
+          <!-- User details will be dynamically loaded here -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Delete User Section -->
+    <section id="delete-user-section" style="display: none;">
+      <h2>Delete User</h2>
+      <form id="delete-user-form">
+        <!-- Input field for deleting a user -->
+        <label for="delete-user-name">Username:</label>
+        <input type="text" id="delete-user-name" name="delete-user-name" placeholder="Enter username to delete" required>
+        <button type="submit">Delete User</button>
+      </form>
+    </section>
+
+    <!-- Modify Game Section -->
+    <section id="modify-game-section" style="display: none;">
+      <h2>Modify Game</h2>
+      <form id="modify-game-form">
+        <label for="modify-title">Title:</label>
+        <input type="text" id="modify-title" name="title" required>
+
+        <label for="modify-price">Price:</label>
+        <input type="number" id="modify-price" name="price" step="0.01" required>
+
+        <label for="modify-description">Description:</label>
+        <textarea id="modify-description" name="description" required></textarea>
+
+        <button type="submit">Update Game</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // Redirect to login if no user is logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      const loggedInUser = localStorage.getItem('loggedInUser');
+      if (!loggedInUser) {
+        alert('You are not logged in. Redirecting to login page...');
+        window.location.href = 'login.html'; // Redirect to login page
+      }
+    });
+
+    // Handle logout
+    document.querySelector('a[href="login.html"]').addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent default link behavior
+      localStorage.removeItem('loggedInUser'); // Clear logged-in user data
+      window.location.href = 'home.html'; // Redirect to home page
+    });
+
+    // Toggle sections
+    const addGameSection = document.getElementById('add-game-section');
+    const gamesSection = document.getElementById('games-section');
+    const ordersSection = document.getElementById('orders-section');
+    const deleteGameSection = document.getElementById('delete-game-section');
+    const usersSection = document.getElementById('users-section');
+    const deleteUserSection = document.getElementById('delete-user-section');
+    const modifyGameSection = document.getElementById('modify-game-section');
+
+    // Event listeners for toggling sections
+    document.getElementById('add-game-btn').addEventListener('click', () => {
+      addGameSection.style.display = 'block';
+      gamesSection.style.display = 'none';
+      ordersSection.style.display = 'none';
+      deleteGameSection.style.display = 'none';
+      usersSection.style.display = 'none';
+      deleteUserSection.style.display = 'none';
+      modifyGameSection.style.display = 'none';
+    });
+    
+
+    document.getElementById('show-games-btn').addEventListener('click', () => {
+      addGameSection.style.display = 'none';
+      gamesSection.style.display = 'block';
+      ordersSection.style.display = 'none';
+      deleteGameSection.style.display = 'none';
+      usersSection.style.display = 'none';
+      deleteUserSection.style.display = 'none';
+      modifyGameSection.style.display = 'none';
+      loadGames(); // Load games when this section is shown
+    });
+
+    document.getElementById('show-orders-btn').addEventListener('click', () => {
+      addGameSection.style.display = 'none';
+      gamesSection.style.display = 'none';
+      ordersSection.style.display = 'block';
+      deleteGameSection.style.display = 'none';
+      usersSection.style.display = 'none';
+      deleteUserSection.style.display = 'none';
+      modifyGameSection.style.display = 'none';
+      loadOrders(); // Load orders when this section is shown
+    });
+
+    document.getElementById('delete-game-btn').addEventListener('click', () => {
+      addGameSection.style.display = 'none';
+      gamesSection.style.display = 'none';
+      ordersSection.style.display = 'none';
+      deleteGameSection.style.display = 'block';
+      usersSection.style.display = 'none';
+      deleteUserSection.style.display = 'none';
+      modifyGameSection.style.display = 'none';
+    });
+
+    document.getElementById('show-users-btn').addEventListener('click', () => {
+      addGameSection.style.display = 'none';
+      gamesSection.style.display = 'none';
+      ordersSection.style.display = 'none';
+      deleteGameSection.style.display = 'none';
+      usersSection.style.display = 'block';
+      deleteUserSection.style.display = 'none';
+      modifyGameSection.style.display = 'none';
+      loadUsers(); // Load users when this section is shown
+    });
+
+    document.getElementById('delete-user-btn').addEventListener('click', () => {
+      addGameSection.style.display = 'none';
+      gamesSection.style.display = 'none';
+      ordersSection.style.display = 'none';
+      deleteGameSection.style.display = 'none';
+      usersSection.style.display = 'none';
+      deleteUserSection.style.display = 'block';
+      modifyGameSection.style.display = 'none';
+    });
+
+    // Event listener for Modify Game button
+    document.getElementById('modify-game-btn').addEventListener('click', () => {
+      // Hide other sections
+      addGameSection.style.display = 'none';
+      gamesSection.style.display = 'none';
+      ordersSection.style.display = 'none';
+      deleteGameSection.style.display = 'none';
+      usersSection.style.display = 'none';
+      deleteUserSection.style.display = 'none';
+
+      // Show Modify Game section
+      document.getElementById('modify-game-section').style.display = 'block';
+    });
+
+    // Fetch and display existing games
+    async function loadGames() {
+      try {
+        const res = await fetch('/api/games', {
+          headers: { role: 'admin' } // Send admin role in headers
+        });
+        const games = await res.json();
+        const gamesList = document.getElementById('games-list');
+        gamesList.innerHTML = '';
+        games.forEach(game => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><img src="/uploads/${game.image}" alt="${game.title}" style="width: 50px; height: 50px;"></td>
+            <td>${game.title}</td>
+            <td>${game.description}</td>
+            <td>$${game.price.toFixed(2)}</td>
+            <td>${game.genre}</td>
+            <td>${game.platform}</td>
+          `;
+          gamesList.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Error loading games:', err);
+        alert('Failed to load games. Please try again.');
+      }
+    }
+
+    // Fetch and display order details
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/orders', {
+          headers: { role: 'admin' } // Send admin role in headers
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message || 'Failed to load orders.');
+        }
+
+        const result = await res.json();
+        console.log('Orders fetched from backend:', result); // Debugging
+
+        const ordersList = document.getElementById('orders-list');
+        if (!ordersList) {
+          console.error('Element with id "orders-list" not found in the DOM.');
+          return;
+        }
+
+        ordersList.innerHTML = ''; // Clear previous content
+
+        if (!Array.isArray(result) || result.length === 0) {
+          ordersList.innerHTML = '<tr><td colspan="5">No orders found.</td></tr>';
+          return;
+        }
+
+        result.forEach(order => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${order.order_item_id || 'N/A'}</td>
+            <td>${order.order_id}</td>
+            <td>${order.game_title || 'N/A'}</td>
+            <td>${order.quantity || 'N/A'}</td>
+            <td>$${order.price ? order.price.toFixed(2) : 'N/A'}</td>
+          `;
+          ordersList.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Error loading orders:', err);
+        alert(err.message || 'Failed to load orders. Please try again.');
+      }
+    }
+
+    // Fetch and display all users
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/users', {
+          headers: { role: 'admin' } // Send admin role in headers
+        });
+        if (!res.ok) {
+          let error;
+          try {
+            error = await res.json(); // Attempt to parse JSON error response
+          } catch (jsonErr) {
+            throw new Error('Invalid JSON response from server.'); // Handle non-JSON responses
+          }
+          throw new Error(error.message || 'Failed to load users.');
+        }
+        const users = await res.json();
+        const usersList = document.getElementById('users-list');
+        usersList.innerHTML = '';
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.role_name}</td>
+          `;
+          usersList.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Error loading users:', err);
+        alert(err.message || 'Failed to load users. Please try again.');
+      }
+    }
+
+    // Handle form submission to add a new game
+    document.getElementById('add-game-form').addEventListener('submit', async function (e) {
+      e.preventDefault(); // Prevent default form submission behavior
+
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const price = parseFloat(document.getElementById('price').value);
+      const genre = document.getElementById('genre').value.trim();
+      const platform = document.getElementById('platform').value.trim();
+      const image = document.getElementById('image').files[0]; // Get the selected file
+
+      if (!title || !description || isNaN(price) || !genre || !platform || !image) {
+        return alert('Please fill in all fields correctly.');
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('price', price);
+      formData.append('genre', genre);
+      formData.append('platform', platform);
+      formData.append('image', image); // Append the file to the form data
+
+      try {
+        const res = await fetch('/api/games', {
+          method: 'POST',
+          headers: { role: 'admin' }, // Send admin role in headers
+          body: formData // Use form data as the request body
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message || 'Failed to add game.');
+        }
+
+        alert('Game added successfully!');
+        document.getElementById('add-game-form').reset(); // Clear the form
+        loadGames(); // Reload the games list
+      } catch (err) {
+        console.error('Error adding game:', err);
+        alert(err.message || 'Failed to add game. Please try again.');
+      }
+    });
+
+    // Handle form submission to delete a game
+    document.getElementById('delete-game-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const gameId = document.getElementById('delete-game-id').value.trim();
+
+      if (!gameId) {
+        return alert('Please enter a valid game ID.');
+      }
+
+      try {
+        const res = await fetch(`/api/games/${gameId}`, {
+          method: 'DELETE',
+          headers: { role: 'admin' } // Send admin role in headers
+        });
+        if (!res.ok) {
+          let error;
+          try {
+            error = await res.json();
+          } catch (jsonErr) {
+            throw new Error('Invalid JSON response from server.');
+          }
+          throw new Error(error.message || 'Failed to delete game.');
+        }
+        alert('Game deleted successfully!');
+        document.getElementById('delete-game-form').reset(); // Clear the form
+        loadGames(); // Reload the games list
+      } catch (err) {
+        console.error('Error deleting game:', err);
+        alert(err.message || 'Failed to delete game. Please try again.');
+      }
+    });
+
+    // Handle form submission to delete a user
+    document.getElementById('delete-user-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const username = document.getElementById('delete-user-name').value.trim();
+
+      if (!username) {
+        return alert('Please enter a valid username.');
+      }
+
+      try {
+        const res = await fetch(`/api/users/${username}`, {
+          method: 'DELETE',
+          headers: { role: 'admin' } // Send admin role in headers
+        });
+
+        if (!res.ok) {
+          let error;
+          try {
+            error = await res.json();
+          } catch (jsonErr) {
+            throw new Error('Invalid JSON response from server.');
+          }
+          throw new Error(error.message || 'Failed to delete user.');
+        }
+
+        alert('User deleted successfully!');
+        document.getElementById('delete-user-form').reset(); // Clear the form
+
+        // Check if the deleted user is the currently logged-in user
+        const currentUsername = localStorage.getItem('loggedInUser'); // Retrieve logged-in user
+        if (username === currentUsername) {
+          alert('You have deleted your own account. Logging out...');
+          localStorage.removeItem('loggedInUser'); // Clear logged-in user data
+          setTimeout(() => {
+            window.location.href = 'login.html'; // Redirect to login page
+          }, 500); // Add a slight delay to ensure cleanup is complete
+        } else {
+          loadUsers(); // Reload the users list
+        }
+      } catch (err) {
+        console.error('Error deleting user:', err);
+        alert(err.message || 'Failed to delete user. Please try again.');
+      }
+    });
+
+    // Update "Show All Users" button functionality
+    document.getElementById('show-users-btn').addEventListener('click', function () {
+      fetch('/api/users', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'role': 'admin' // Important for backend access
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const usersList = document.getElementById('users-list');
+        usersList.innerHTML = ''; // Clear previous content
+
+        if (Array.isArray(data) && data.length > 0) {
+          data.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${user.username}</td>
+              <td>${user.email}</td>
+              <td>${user.role_name}</td>
+            `;
+            usersList.appendChild(row);
+          });
+        } else {
+          usersList.innerHTML = '<tr><td colspan="3">No users found.</td></tr>';
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching users:', err);
+        alert('Failed to fetch users. See console for error.');
+      });
+    });
+
+    function validateAdmin(req, res, next) {
+      const { role } = req.headers;
+      if (role !== 'admin') {
+        console.error('Access denied: Admins only.');
+        return res.status(403).json({ success: false, message: 'Access denied: Admins only.' });
+      }
+      next();
+    }
+  </script>
+  <script>
+  document.getElementById('add-game-form').addEventListener('submit', async function (e) {
+    e.preventDefault(); // Prevent default form submission behavior
+
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const price = parseFloat(document.getElementById('price').value);
+    const genre = document.getElementById('genre').value.trim();
+    const platform = document.getElementById('platform').value.trim();
+    const image = document.getElementById('image').files[0]; // Get the selected file
+
+    if (!title || !description || isNaN(price) || !genre || !platform || !image) {
+      return alert('Please fill in all fields correctly.');
+    }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('genre', genre);
+    formData.append('platform', platform);
+    formData.append('image', image); // Append the file to the form data
+
+    try {
+      const res = await fetch('/api/games', {
+        method: 'POST',
+        headers: { role: 'admin' }, // Send admin role in headers
+        body: formData // Use form data as the request body
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to add game.');
+      }
+
+      alert('Game added successfully!');
+      document.getElementById('add-game-form').reset(); // Clear the form
+      loadGames(); // Reload the games list
+    } catch (err) {
+      console.error('Error adding game:', err);
+      alert(err.message || 'Failed to add game. Please try again.');
+    }
+  });
+</script>
+<script>
+  document.getElementById('add-game-form').addEventListener('submit', function(event) {
+    console.log('Form submitted');
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Submitting...';
+    }
+  });
+</script>
+<script>
+  // Show Modify Game Section
+  function showModifyGameSection(game) {
+    document.getElementById('modify-game-section').style.display = 'block';
+    document.getElementById('modify-title').value = game.title;
+    document.getElementById('modify-price').value = game.price;
+    document.getElementById('modify-description').value = game.description;
+  }
+
+  // Handle Modify Game Form Submission
+  document.getElementById('modify-game-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const gameId = selectedGameId; // Assume this is set when a game is selected for modification
+    const title = document.getElementById('modify-title').value;
+    const price = document.getElementById('modify-price').value;
+    const description = document.getElementById('modify-description').value;
+
+    const response = await fetch(`/api/games/${gameId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, price, description })
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('Game updated successfully!');
+      // Reload games or update UI
+    } else {
+      alert('Failed to update game: ' + result.message);
+    }
+  });
+</script>
+</body>
+</html>

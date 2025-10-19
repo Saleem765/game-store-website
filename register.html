@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Link to external CSS file for styling -->
+  <link rel="stylesheet" href="db_css.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Game Store</title>
+  <style>
+    /* Navigation styling for links on the same row */
+    nav {
+      text-align: center;
+      margin-top: 10px;
+    }
+    nav a {
+      display: inline-block;
+      margin: 0 15px;
+      text-decoration: none;
+      color: #dfe2df;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Header section with title and navigation links -->
+    <h1 style="text-align: center; color: #4caf50;">Game Store</h1>
+    <nav>
+      <!-- Navigation links to Home and Login pages -->
+      <a href="home.html">Home</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </header>
+  
+  <main class="container">
+    <!-- Main heading for the registration form -->
+    <h2>Register</h2>
+
+    <!-- Registration Form -->
+    <form id="register-form">
+      <!-- Dropdown to select user role -->
+      <label for="role">Register as:</label>
+      <br>
+      <select id="role" name="role" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="customer">Customer</option>
+        <option value="admin">Admin</option>
+      </select>
+      <br><br>
+
+      <!-- Input field for username -->
+      <label for="username">Username:</label>
+      <br>
+      <input type="text" id="username" name="username" required>
+      <br>
+
+      <!-- Input field for email -->
+      <label for="email">Email:</label>
+      <br>
+      <input type="email" id="email" name="email" required>
+      <br>
+
+      <!-- Input field for password -->
+      <label for="password">Password:</label>
+      <br>
+      <input type="password" id="password" name="password" required>
+      <br><br>
+
+      <!-- Submit button for registration -->
+      <button type="submit">Register</button>
+    </form>
+  </main>
+
+  <script>
+    // Handle form submission
+    document.getElementById('register-form').addEventListener('submit', async function (e) {
+      e.preventDefault(); // Prevent default form submission behavior
+      
+      // Get form values
+      const role = document.getElementById('role').value; // Ensure role is included
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Validate form inputs
+      if (!role || !username || !email || !password) {
+        return alert('Please fill in all fields.');
+      }
+
+      try {
+        // Send registration data to the backend
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role, username, email, password }) // Include role
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          // Show success message and redirect to login page
+          alert('Registration successful! Please login.');
+          window.location.href = 'login.html'; // Redirect to login page
+        } else {
+          // Show error message from backend
+          alert(result.message);
+        }
+      } catch (error) {
+        // Handle network or server errors
+        console.error('Error during registration:', error);
+        alert('An error occurred. Please try again later.');
+      }
+    });
+  </script>
+</body>
+</html>

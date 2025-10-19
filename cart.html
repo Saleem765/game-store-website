@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Link to external CSS file -->
+  <link rel="stylesheet" href="db_css.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart - Game Store</title>
+</head>
+<body>
+  <header>
+    <!-- Header section with navigation -->
+    <h1>Game Store</h1>
+    <nav>
+      <a href="home.html">Home</a>
+      <button id="logout-button" style="margin-left: 10px;">Logout</button>
+    </nav>
+  </header>
+  <main class="container">
+    <!-- Main container for cart functionality -->
+    <h2>Available Games</h2>
+    <form id="game-selection-form">
+      <!-- Section to display available games -->
+      <div id="games-list"></div>
+
+      <!-- Dropdown for selecting platform -->
+      <h3>Select Platform:</h3>
+      <select id="platform-selection" required>
+        <option value="" disabled selected>Select a platform</option>
+        <option value="PC">PC</option>
+        <option value="PlayStation">PlayStation</option>
+        <option value="Xbox">Xbox</option>
+      </select>
+
+      <!-- Input for entering quantity -->
+      <h3>Enter Quantity:</h3>
+      <input type="number" id="quantity-input" min="1" value="1" placeholder="Enter quantity" required>
+
+      <!-- Display total price -->
+      <h3>Total Price: <span id="total-price">$0.00</span></h3>
+  
+
+      <!-- Dropdown for selecting payment method -->
+      <h3>Select Payment Method:</h3>
+      <select id="payment-methods" required>
+        <option value="" disabled selected>Select a payment method</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="Bank Transfer">Bank Transfer</option>
+      </select>
+
+      <!-- Dropdown for selecting payment status -->
+      
+      
+
+      <!-- Checkout button -->
+      <button type="submit" id="checkout-button">Proceed to Checkout</button>
+    </form>
+
+    <!-- Section to display payment status messages -->
+    <div id="payment-status-message" style="margin-top: 20px;"></div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Render the list of available games when the page loads
+      renderGames();
+
+      // Event listener for game selection changes
+      document.getElementById('games-list').addEventListener('change', () => {
+        const selectedGames = Array.from(document.querySelectorAll('input[name="game-checkbox"]:checked'));
+        const quantityInput = document.getElementById('quantity-input');
+
+        if (selectedGames.length > 0) {
+          quantityInput.disabled = false; // Enable the quantity input
+          quantityInput.value = 1; // Reset quantity to 1
+        } else {
+          quantityInput.disabled = true; // Disable the quantity input
+          quantityInput.value = 1; // Reset quantity to 1
+        }
+
+        updateTotalPrice();
+      });
+
+      // Event listener for quantity input changes
+      document.getElementById('quantity-input').addEventListener('input', () => {
+        const quantityInput = document.getElementById('quantity-input');
+        if (quantityInput.value < 1) {
+          quantityInput.value = 1; // Ensure quantity is not less than 1
+        }
+        updateTotalPrice();
+      });
+
+      // Function to update the total price
+      function updateTotalPrice() {
+        const selectedGames = Array.from(document.querySelectorAll('input[name="game-checkbox"]:checked'));
+        const quantity = parseInt(document.getElementById('quantity-input').value);
+
+        // Validate input
+        if (selectedGames.length === 0 || isNaN(quantity) || quantity <= 0) {
+          document.getElementById('total-price').textContent = '$0.00';
+          return;
+        }
+
+        // Calculate total price
+        const totalPrice = selectedGames.reduce((sum, game) => {
+          const price = parseFloat(game.dataset.price);
+          return sum + price * quantity;
+        }, 0);
+
+        // Display total price
+        document.getElementById('total-price').textContent = `$${totalPrice.toFixed(2)}`;
+      }
+
+      // Event listener for handling checkout
+      document.getElementById('game-selection-form').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Prevent form submission
+
+        // Gather selected games and form inputs
+        const selectedGames = Array.from(document.querySelectorAll('input[name="game-checkbox"]:checked'));
+        const platform = document.getElementById('platform-selection').value;
+        const quantity = parseInt(document.getElementById('quantity-input').value);
+        const paymentMethod = document.getElementById('payment-methods').value;
+        const paymentStatus = document.getElementById('payment-status').value;
+
+        // Add debugging logs to checkout process
+        console.log('Selected Games:', selectedGames);
+        console.log('Platform:', platform);
+        console.log('Quantity:', quantity);
+        console.log('Payment Method:', paymentMethod);
+        console.log('Payment Status:', paymentStatus);
+        console.log('Cart Items:', cartItems);
+        console.log('Total Amount:', totalAmount);
+
+        // Validate input
+        if (selectedGames.length === 0 || !platform || isNaN(quantity) || quantity <= 0 || !paymentMethod || !paymentStatus) {
+          alert('Please complete all selections before proceeding to checkout.');
+          return;
+        }
+
+        // Prepare cart items for checkout
+        const cartItems = selectedGames.map(game => ({
+          game_id: game.value,
+          title: game.dataset.title,
+          price: parseFloat(game.dataset.price),
+          platform,
+          quantity
+        }));
+
+        // Calculate total amount
+        const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+        try {
+          // Send checkout request to the backend
+          const response = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: cartItems,
+              totalAmount,
+              paymentMethod,
+              paymentStatus
+            })
+          });
+
+          const result = await response.json();
+
+          // Handle response
+          if (result.success) {
+            alert(`Order placed successfully! Order ID: ${result.orderId}`);
+            document.getElementById('game-selection-form').reset();
+            document.getElementById('total-price').textContent = '$0.00';
+          } else {
+            alert('Checkout failed: ' + result.error);
+          }
+        } catch (error) {
+          console.error('Error during checkout:', error);
+          alert('An error occurred during checkout. Please try again later.');
+        }
+      });
+
+      // Event listener for logout button
+      document.getElementById('logout-button').addEventListener('click', () => {
+        // Redirect to the logout endpoint or perform logout logic
+        window.location.href = 'home.html';
+      });
+    });
+
+    // Function to fetch and display all games with prices
+    async function renderGames() {
+      const gamesList = document.getElementById('games-list');
+      try {
+        // Fetch games from the backend
+        const response = await fetch('/api/games');
+        const games = await response.json();
+
+        // Render games in a grid layout
+        gamesList.innerHTML = games.map(game => `
+          <div class="game-item">
+            <img src="uploads/${game.image}" alt="${game.title}" class="game-image">
+            <div class="game-details">
+              <h4>${game.title}</h4>
+              <p>Price: $${game.price.toFixed(2)}</p>
+              <input type="checkbox" name="game-checkbox" value="${game.game_id}" data-title="${game.title}" data-price="${game.price}">
+              <label>Select</label>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error fetching games:', error);
+        gamesList.innerHTML = '<p>Failed to load games. Please try again later.</p>';
+      }
+    }
+  </script>
+
+  <script>
+  document.getElementById('logout-button').addEventListener('click', () => {
+    // Optional: clear user data
+    localStorage.removeItem('loggedInUser'); // Remove logged-in user data from localStorage
+
+    // Redirect to home page
+    window.location.href = 'home.html';
+  });
+</script>
+
+</body>
+</html>
